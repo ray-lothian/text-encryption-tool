@@ -1,1 +1,0 @@
-../keepasshelper/safe.js

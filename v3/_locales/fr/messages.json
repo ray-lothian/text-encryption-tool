@@ -1,0 +1,5 @@
+{
+  "description": {
+    "message": "Cryptage, décryptage, stockage et synchronisation de données textuelles à l'aide de l'algorithme de hachage SHA-256."
+  }
+}
