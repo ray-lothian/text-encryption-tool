@@ -1,7 +1,6 @@
-/* globals safe */
-'use strict';
+/* global safe */
 
-importScripts('./safe.js');
+self.importScripts('./safe.js');
 
 const notify = message => chrome.notifications.create({
   title: chrome.runtime.getManifest().name,
@@ -70,7 +69,7 @@ const records = () => chrome.storage.sync.get(null, prefs => {
     chrome.contextMenus.create({
       id: key,
       title: key.replace('record.', ''),
-      contexts: ['selection', 'page'],
+      contexts: ['selection', 'page', 'editable'],
       parentId: 'safe'
     }, () => chrome.runtime.lastError);
   }
@@ -141,16 +140,60 @@ chrome.storage.onChanged.addListener(prefs => {
     chrome.contextMenus.create({
       id: 'safe',
       title: 'Safe Storage',
-      contexts: ['selection', 'page'],
+      contexts: ['selection', 'page', 'editable'],
       documentUrlPatterns: ['*://*/*']
     });
     chrome.contextMenus.create({
       id: 'remove',
       title: 'Remove from Storage',
-      contexts: ['selection', 'page'],
+      contexts: ['selection', 'page', 'editable'],
       documentUrlPatterns: ['*://*/*']
     });
     records();
+
+    chrome.contextMenus.create({
+      id: 'text-editor',
+      title: 'Open Text Editor',
+      contexts: ['action']
+    });
+    chrome.contextMenus.create({
+      id: 'file-encryptor',
+      title: 'Open File Encryptor',
+      contexts: ['action']
+    });
+    chrome.contextMenus.create({
+      id: 'options',
+      title: 'Options',
+      contexts: ['action']
+    });
+
+    chrome.storage.local.get({
+      rate: true,
+      'try-to-paste': true
+    }, prefs => {
+      if (prefs.rate) {
+        chrome.contextMenus.create({
+          id: 's4',
+          contexts: ['selection', 'page'],
+          documentUrlPatterns: ['*://*/*'],
+          type: 'separator'
+        });
+        chrome.contextMenus.create({
+          id: 'rate',
+          title: 'Rate Me',
+          contexts: ['selection', 'page'],
+          documentUrlPatterns: ['*://*/*']
+        });
+      }
+      chrome.contextMenus.create({
+        id: 'try-to-paste',
+        title: 'Try to Paste Decrypted Text to Editable',
+        contexts: ['action'],
+        parentId: 'options',
+        checked: prefs['try-to-paste'],
+        type: 'checkbox'
+      });
+    });
   };
   chrome.runtime.onInstalled.addListener(callback);
   chrome.runtime.onStartup.addListener(callback);
@@ -248,6 +291,26 @@ const onClicked = async (info, tab) => {
           replace(text, tab.id);
         }
         else {
+          const prefs = await new Promise(resolve => chrome.storage.local.get({
+            'try-to-paste': true
+          }, resolve));
+
+          // try to paste the text into the editable
+          if (info.editable && prefs['try-to-paste']) {
+            const r = await chrome.scripting.executeScript({
+              target: {
+                tabId: tab.id,
+                frameIds: [info.frameId]
+              },
+              func: msg => document.execCommand('insertText', false, msg),
+              args: [text]
+            });
+
+            if (r[0].result) {
+              return;
+            }
+          }
+
           await copy(text, tab.id);
           notify('Decrypted text is copied to the clipboard');
         }
@@ -289,6 +352,31 @@ const onClicked = async (info, tab) => {
       chrome.storage.sync.remove('record.' + r[0].result);
       chrome.contextMenus.remove('record.' + r[0].result);
     }
+  }
+  else if (method === 'rate') {
+    let url = 'https://chrome.google.com/webstore/detail/text-encryption-tool/dbamnickgaplfmadnoegnbpjlojmjpge/reviews/';
+    if (/Edg/.test(navigator.userAgent)) {
+      url = 'https://microsoftedge.microsoft.com/addons/detail/dbniffdbjhdfohfjdapjmnladdcflijg';
+    }
+    else if (/Firefox/.test(navigator.userAgent)) {
+      url = 'https://addons.mozilla.org/firefox/addon/text-encryption-tool/reviews';
+    }
+
+    chrome.storage.local.set({
+      'rate': false
+    }, () => chrome.tabs.create({
+      url
+    }));
+  }
+  else if (method === 'text-editor' || method === 'file-encryptor') {
+    chrome.tabs.create({
+      url: 'https://webbrowsertools.com/' + method + '/'
+    });
+  }
+  else if (method === 'try-to-paste') {
+    chrome.storage.local.set({
+      'try-to-paste': info.checked
+    });
   }
 };
 chrome.contextMenus.onClicked.addListener(onClicked);

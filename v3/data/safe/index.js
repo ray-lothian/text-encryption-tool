@@ -30,6 +30,12 @@ document.getElementById('store').addEventListener('click', () => {
       chrome.storage.sync.set({
         ['record.' + name]: data
       });
+
+      const option = document.createElement('option');
+      option.value = data;
+      option.textContent = name;
+      document.getElementById('records').appendChild(option);
+      document.getElementById('records').disabled = false;
     }
   }
   else {
