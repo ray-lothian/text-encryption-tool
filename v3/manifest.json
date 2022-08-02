@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.2.1",
+  "version": "0.2.2",
   "name": "Text Encryption Tool",
   "description": "__MSG_description__",
   "default_locale": "en",
@@ -27,6 +27,11 @@
   "commands": {
     "_execute_action": {
       "description": "Press the action button"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{7a011261-eae1-456c-a6c0-b684127da06e}"
     }
   }
 }

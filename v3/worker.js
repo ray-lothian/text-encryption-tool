@@ -278,15 +278,16 @@ const onClicked = async (info, tab) => {
     if (selected.startsWith('data:application/octet-binary;base64,') === false) {
       return notify('This is not an encrypted text');
     }
-    const r = await chrome.scripting.executeScript({
-      target: {
-        tabId: tab.id
-      },
-      func: () => prompt('Enter the passphrase')
-    });
-    const password = r[0].result;
-    if (password) {
-      safe.decrypt(selected, password).then(async text => {
+    try {
+      const r = await chrome.scripting.executeScript({
+        target: {
+          tabId: tab.id
+        },
+        func: () => prompt('Enter the passphrase')
+      });
+      const password = r[0].result;
+      if (password) {
+        const text = await safe.decrypt(selected, password);
         if (method === 'decrypt-replace') {
           replace(text, tab.id);
         }
@@ -314,10 +315,13 @@ const onClicked = async (info, tab) => {
           await copy(text, tab.id);
           notify('Decrypted text is copied to the clipboard');
         }
-      }).catch(e => notify(e.message || 'Cannot decrypt selected text with the provided passphrase'));
+      }
+      else {
+        notify('Passphrase is mandatory to decrypt selection');
+      }
     }
-    else {
-      notify('Passphrase is mandatory to decrypt selection');
+    catch (e) {
+      notify(e.message || 'Cannot decrypt selected text with the provided passphrase');
     }
   }
   else if (method === 'open-safe') {
