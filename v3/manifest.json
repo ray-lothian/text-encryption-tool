@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.2.2",
+  "version": "0.2.4",
   "name": "Text Encryption Tool",
   "description": "__MSG_description__",
   "default_locale": "en",
@@ -10,7 +10,8 @@
     "48": "data/icons/48.png",
     "64": "data/icons/64.png",
     "128": "data/icons/128.png",
-    "256": "data/icons/256.png"
+    "256": "data/icons/256.png",
+    "512": "data/icons/512.png"
   },
   "permissions": [
     "contextMenus",

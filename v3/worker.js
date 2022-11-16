@@ -62,6 +62,8 @@ const copy = async (str, tabId) => {
 // records
 const records = () => chrome.storage.sync.get(null, prefs => {
   const keys = Object.keys(prefs).filter(s => s.startsWith('record.'));
+  keys.sort();
+
   chrome.contextMenus.update('safe', {
     title: `Safe Storage (${keys.length})`
   });

@@ -3,87 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Encryption Tool</title>
-  <style>
-    html,
-    body {
-      height: 100%;
-    }
-    body {
-      font-family: "Helvetica Neue",Helvetica,sans-serif;
-      font-size: 13px;
-      display: flex;
-      justify-content: center;
-      margin: 0;
-    }
-    body,
-    input {
-      color: #4d5156;
-    }
-    form {
-      padding: 10px;
-      width: 100%;
-      display: grid;
-      grid-template-rows: 1fr min-content;
-    }
-    form > div:first-child {
-      display: grid;
-      grid-template-columns: min-content 1fr;
-      grid-template-rows: min-content 1fr 1fr;
-      grid-gap: 5px 10px;
-      white-space: nowrap;
-      align-items: center;
-    }
-    table {
-      width: 100%;
-    }
-    td {
-      white-space: nowrap;
-    }
-    td:last-child {
-      text-align: right;
-    }
-    textarea,
-    input[type=text],
-    input[type=submit],
-    input[type=button],
-    input[type=password] {
-      border: none;
-      border-radius: 0;
-      padding: 7px;
-      outline: none;
-      min-width: 90px;
-    }
-    textarea,
-    input[type=text],
-    input[type=password] {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 5px;
-      border-bottom: solid 1px #efefef;
-    }
-    input[type=button],
-    input[type=submit] {
-      cursor: pointer;
-    }
-    input {
-      outline: none;
-    }
-    textarea {
-      min-height: 32px;
-      height: 100%;
-    }
-    ::placeholder {
-      color: #0074cc;
-      opacity: 0.5;
-    }
-    .submit {
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-gap: 2px;
-      margin-top: 10px;
-    }
-  </style>
+  <link rel="stylesheet" type="text/css" href="index.css">
   </head>
   <body>
     <form action="#">
@@ -97,15 +17,18 @@
       </div>
 
       <div class="submit">
-        <input type="submit" value="Decrypt" id="decrypt">
-        <input type="submit" value="Encrypt" id="encrypt">
-        <input type="submit" value="Store" id="store">
+        <button type="submit" id="decrypt" title="Ctrl/Command + Shift + D"><u>D</u>ecrypt</button>
+        <button type="submit" id="encrypt" title="Ctrl/Command + Shift + E"><u>E</u>ncrypt</button>
+        <button type="button" id="swap" title="Ctrl/Command + Shift + W">S<u>w</u>ap</button>
+        <button type="button" id="store" title="Ctrl/Command + Shift + S"><u>S</u>tore</button>
         <select id="records">
           <option id="rd">select a record</option>
         </select>
+        <button type="button" id="remove"  title="Ctrl/Command + Shift + M" disabled>Re<u>m</u>ove</button>
       </div>
     </form>
     <script src="/safe.js"></script>
     <script src="index.js"></script>
+    <script src="keyboard.js"></script>
   </body>
 </html>
