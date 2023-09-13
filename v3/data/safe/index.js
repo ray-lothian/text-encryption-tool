@@ -1,4 +1,4 @@
-/* globals safe */
+/* global Safe */
 'use strict';
 
 const args = new URLSearchParams(location.search);
@@ -10,15 +10,27 @@ document.getElementById('decrypt').addEventListener('click', () => {
   document.forms[0].dataset.action = 'decrypt';
 });
 
-document.addEventListener('submit', e => {
+document.addEventListener('submit', async e => {
   e.preventDefault();
   const data = document.getElementById('data').value;
   const passphrase = document.getElementById('passphrase').value;
   const result = document.getElementById('result');
 
+  const safe = new Safe();
+
   if (safe[e.target.dataset.action]) {
-    safe[e.target.dataset.action](data, passphrase).then(s => result.value = s)
-      .catch(e => result.value = e.message || 'Operation was unsuccessful');
+    try {
+      await safe.open(passphrase);
+      if (e.target.dataset.action === 'encrypt') {
+        result.value = 'data:application/octet-binary;base64,' + await safe.encrypt(data);
+      }
+      else {
+        result.value = await safe.decrypt(data);
+      }
+    }
+    catch (e) {
+      result.value = e.message || 'Operation was unsuccessful';
+    }
   }
 });
 

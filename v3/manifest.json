@@ -1,17 +1,17 @@
 {
   "manifest_version": 3,
-  "version": "0.2.4",
+  "version": "0.2.5",
   "name": "Text Encryption Tool",
   "description": "__MSG_description__",
   "default_locale": "en",
   "icons": {
-    "16": "data/icons/16.png",
-    "32": "data/icons/32.png",
-    "48": "data/icons/48.png",
-    "64": "data/icons/64.png",
-    "128": "data/icons/128.png",
-    "256": "data/icons/256.png",
-    "512": "data/icons/512.png"
+    "16": "/data/icons/16.png",
+    "32": "/data/icons/32.png",
+    "48": "/data/icons/48.png",
+    "64": "/data/icons/64.png",
+    "128": "/data/icons/128.png",
+    "256": "/data/icons/256.png",
+    "512": "/data/icons/512.png"
   },
   "permissions": [
     "contextMenus",
@@ -20,19 +20,12 @@
     "activeTab",
     "scripting"
   ],
-  "homepage_url": "https://add0n.com/text-encryption-tool.html",
+  "homepage_url": "https://webextension.org/listing/text-encryption-tool.html",
   "background": {
     "service_worker": "worker.js"
   },
   "action": {},
   "commands": {
-    "_execute_action": {
-      "description": "Press the action button"
-    }
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "{7a011261-eae1-456c-a6c0-b684127da06e}"
-    }
+    "_execute_action": {}
   }
 }
