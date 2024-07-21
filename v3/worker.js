@@ -6,8 +6,10 @@ self.importScripts('./context.js');
 const notify = message => chrome.notifications.create({
   title: chrome.runtime.getManifest().name,
   type: 'basic',
-  iconUrl: 'data/icons/48.png',
+  iconUrl: '/data/icons/48.png',
   message
+}, id => {
+  setTimeout(chrome.notifications.clear(id), 5000);
 });
 
 const replace = (str, tabId) => {
@@ -269,7 +271,7 @@ chrome.action.onClicked.addListener(() => onClicked({
         if (reason === 'install' || (prefs.faqs && reason === 'update')) {
           const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
           if (doUpdate && previousVersion !== version) {
-            tabs.query({active: true, currentWindow: true}, tbs => tabs.create({
+            tabs.query({active: true, lastFocusedWindow: true}, tbs => tabs.create({
               url: page + '?version=' + version + (previousVersion ? '&p=' + previousVersion : '') + '&type=' + reason,
               active: reason === 'install',
               ...(tbs && tbs.length && {index: tbs[0].index + 1})
