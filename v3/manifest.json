@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.2.6",
+  "version": "0.2.7",
   "name": "Text Encryption Tool",
   "description": "__MSG_description__",
   "default_locale": "en",
@@ -22,10 +22,17 @@
   ],
   "homepage_url": "https://webextension.org/listing/text-encryption-tool.html",
   "background": {
-    "service_worker": "worker.js"
+    "service_worker": "worker.js",
+    "scripts": ["safe.js", "context.js", "worker.js"]
   },
   "action": {},
   "commands": {
     "_execute_action": {}
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{7a011261-eae1-456c-a6c0-b684127da06e}",
+      "strict_min_version": "128.0"
+    }
   }
 }

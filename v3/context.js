@@ -1,6 +1,11 @@
 // Context Menu
 {
-  const callback = () => {
+  const once = async () => {
+    if (once.done) {
+      return;
+    }
+    once.done = true;
+
     chrome.contextMenus.create({
       id: 'open-safe',
       title: 'Open in Encryption Tool',
@@ -85,36 +90,35 @@
       contexts: ['action']
     });
 
-    chrome.storage.local.get({
+    const prefs = await chrome.storage.local.get({
       'rate': true,
       'try-to-paste': true
-    }, prefs => {
-      if (prefs.rate) {
-        chrome.contextMenus.create({
-          id: 's4',
-          contexts: ['selection', 'page'],
-          documentUrlPatterns: ['*://*/*'],
-          type: 'separator'
-        });
-        chrome.contextMenus.create({
-          id: 'rate',
-          title: 'Rate Me',
-          contexts: ['selection', 'page'],
-          documentUrlPatterns: ['*://*/*']
-        });
-      }
+    });
+    if (prefs.rate) {
       chrome.contextMenus.create({
-        id: 'try-to-paste',
-        title: 'Try to Paste Decrypted Text to Editable',
-        contexts: ['action'],
-        parentId: 'options',
-        checked: prefs['try-to-paste'],
-        type: 'checkbox'
+        id: 's4',
+        contexts: ['selection', 'page'],
+        documentUrlPatterns: ['*://*/*'],
+        type: 'separator'
       });
+      chrome.contextMenus.create({
+        id: 'rate',
+        title: 'Rate Me',
+        contexts: ['selection', 'page'],
+        documentUrlPatterns: ['*://*/*']
+      });
+    }
+    chrome.contextMenus.create({
+      id: 'try-to-paste',
+      title: 'Try to Paste Decrypted Text to Editable',
+      contexts: ['action'],
+      parentId: 'options',
+      checked: prefs['try-to-paste'],
+      type: 'checkbox'
     });
   };
-  chrome.runtime.onInstalled.addListener(callback);
-  chrome.runtime.onStartup.addListener(callback);
+  chrome.runtime.onInstalled.addListener(once);
+  chrome.runtime.onStartup.addListener(once);
 }
 
 // records

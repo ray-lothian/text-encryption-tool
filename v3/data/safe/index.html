@@ -2,30 +2,30 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Encryption Tool</title>
-  <link rel="stylesheet" type="text/css" href="index.css">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="index.css">
+  <title>Encryption Tool</title>
   </head>
   <body>
-    <form action="#">
+    <form action="#" autocomplete="off">
       <div>
         <td>Passphrase</td>
-        <td><input type="password" id="passphrase" required placeholder="required*"></td>
+        <td><input type="password" id="passphrase" required placeholder="required*" autocomplete="off"></td>
         <td>Input</td>
-        <td><textarea rows="4" id="data" required placeholder="required*" autofocus></textarea></td>
+        <td><textarea rows="4" id="data" required placeholder="required*" autofocus autocomplete="off"></textarea></td>
         <td>Result</td>
-        <td><textarea id="result" readonly="true" placeholder="*** Readonly ***"></textarea></td>
+        <td><textarea id="result" readonly="true" placeholder="*** Readonly ***" autocomplete="off"></textarea></td>
       </div>
 
       <div class="submit">
-        <button type="submit" id="decrypt" title="Ctrl/Command + Shift + D"><u>D</u>ecrypt</button>
-        <button type="submit" id="encrypt" title="Ctrl/Command + Shift + E"><u>E</u>ncrypt</button>
-        <button type="button" id="swap" title="Ctrl/Command + Shift + W">S<u>w</u>ap</button>
-        <button type="button" id="store" title="Ctrl/Command + Shift + S"><u>S</u>tore</button>
+        <button type="submit" id="decrypt" title="Ctrl/Command + Shift + D" accesskey="d"><u>D</u>ecrypt</button>
+        <button type="submit" id="encrypt" title="Ctrl/Command + Shift + E" accesskey="e"><u>E</u>ncrypt</button>
+        <button type="button" id="swap" title="Ctrl/Command + Shift + W" accesskey="w">S<u>w</u>ap</button>
+        <button type="button" id="store" title="Ctrl/Command + Shift + S" accesskey="s"><u>S</u>tore</button>
         <select id="records">
           <option id="rd">select a record</option>
         </select>
-        <button type="button" id="remove"  title="Ctrl/Command + Shift + M" disabled>Re<u>m</u>ove</button>
+        <button type="button" id="remove"  title="Ctrl/Command + Shift + M" disabled accesskey="m">Re<u>m</u>ove</button>
       </div>
     </form>
     <script src="/safe.js"></script>

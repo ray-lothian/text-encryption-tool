@@ -34,7 +34,7 @@ document.addEventListener('submit', async e => {
   }
 });
 
-document.getElementById('store').addEventListener('click', () => {
+document.getElementById('store').addEventListener('click', async () => {
   const data = document.getElementById('result').value;
   if (data.startsWith('data:application/octet-binary;base64,')) {
     const index = document.getElementById('records').selectedIndex;
@@ -44,28 +44,34 @@ document.getElementById('store').addEventListener('click', () => {
 
 >>> The old data will be removed if the name already exists <<<`, v);
     if (name) {
-      chrome.storage.sync.set({
-        ['record.' + name]: data
-      });
+      try {
+        await chrome.storage.sync.set({
+          ['record.' + name]: data
+        });
 
-      document.getElementById('remove').disabled = false;
+        document.getElementById('remove').disabled = false;
 
-      // do we already have this name
-      for (const option of document.getElementById('records').options) {
-        if (option.textContent === name) {
-          option.value = data;
-          option.selected = true;
+        // do we already have this name
+        for (const option of document.getElementById('records').options) {
+          if (option.textContent === name) {
+            option.value = data;
+            option.selected = true;
 
-          return;
+            return;
+          }
         }
-      }
 
-      const option = document.createElement('option');
-      option.value = data;
-      option.textContent = name;
-      document.getElementById('records').appendChild(option);
-      document.getElementById('records').disabled = false;
-      option.selected = true;
+        const option = document.createElement('option');
+        option.value = data;
+        option.textContent = name;
+        document.getElementById('records').appendChild(option);
+        document.getElementById('records').disabled = false;
+        option.selected = true;
+      }
+      catch (e) {
+        console.error(e);
+        alert('Error: ' + e.message);
+      }
     }
   }
   else {

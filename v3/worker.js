@@ -1,7 +1,9 @@
 /* global Safe */
 
-self.importScripts('./safe.js');
-self.importScripts('./context.js');
+if (typeof importScripts !== 'undefined') {
+  self.importScripts('./safe.js');
+  self.importScripts('./context.js');
+}
 
 const notify = message => chrome.notifications.create({
   title: chrome.runtime.getManifest().name,
@@ -9,38 +11,45 @@ const notify = message => chrome.notifications.create({
   iconUrl: '/data/icons/48.png',
   message
 }, id => {
-  setTimeout(chrome.notifications.clear(id), 5000);
+  setTimeout(chrome.notifications.clear, 5000, id);
 });
 
-const replace = (str, tabId) => {
-  chrome.scripting.executeScript({
-    target: {
-      tabId,
-      allFrames: true
-    },
-    func: str => {
-      const selected = window.getSelection();
-      const aElement = document.activeElement;
-      if (selected && selected.rangeCount) {
-        const run = document.execCommand('insertText', null, str);
-        if (run === false) {
-          const range = selected.getRangeAt(0);
-          range.deleteContents();
-          range.insertNode(document.createTextNode(str));
+const replace = async (str, tabId) => {
+  try {
+    await chrome.scripting.executeScript({
+      target: {
+        tabId,
+        allFrames: true
+      },
+      injectImmediately: true,
+      func: str => {
+        const selected = window.getSelection();
+        const aElement = document.activeElement;
+        if (selected && selected.rangeCount) {
+          const run = document.execCommand('insertText', null, str);
+          if (run === false) {
+            const range = selected.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(document.createTextNode(str));
+          }
         }
-      }
-      else if (aElement && 'selectionStart' in aElement && aElement.selectionStart !== aElement.selectionEnd) {
-        const value = aElement.value;
-        const {selectionStart, selectionEnd} = aElement;
-        aElement.value = value.slice(0, selectionStart) + str + value.slice(selectionEnd);
-        Object.assign(aElement, {
-          selectionStart,
-          selectionEnd: selectionStart + str.length
-        });
-      }
-    },
-    args: [str]
-  }).catch(notify);
+        else if (aElement && 'selectionStart' in aElement && aElement.selectionStart !== aElement.selectionEnd) {
+          const value = aElement.value;
+          const {selectionStart, selectionEnd} = aElement;
+          aElement.value = value.slice(0, selectionStart) + str + value.slice(selectionEnd);
+          Object.assign(aElement, {
+            selectionStart,
+            selectionEnd: selectionStart + str.length
+          });
+        }
+      },
+      args: [str]
+    });
+  }
+  catch (e) {
+    console.error(e);
+    notify(e.message);
+  }
 };
 
 const copy = async (str, tabId) => {
@@ -53,6 +62,7 @@ const copy = async (str, tabId) => {
     target: {
       tabId
     },
+    injectImmediately: true,
     func: encrypted => {
       navigator.clipboard.writeText(encrypted).catch(e => {
         alert('Cannot copy to the clipboard; ' + e.message + '\n\nCopy using Ctrl + C\n\n' + encrypted);
@@ -77,9 +87,10 @@ const onClicked = async (info, tab) => {
         target: {
           tabId: tab.id
         },
+        injectImmediately: true,
         func: () => {
           const password = prompt('Enter a passphrase');
-          if (password === '') {
+          if (!password) {
             return {
               error: 'Empty passphrase. Operation terminated'
             };
@@ -111,12 +122,14 @@ const onClicked = async (info, tab) => {
           target: {
             tabId: tab.id
           },
+          injectImmediately: true,
           func: () => prompt('Enter a unique name for this record')
         });
         if (r[0].result) {
-          chrome.storage.sync.set({
+          await chrome.storage.sync.set({
             ['record.' + r[0].result]: encrypted
-          }, () => notify('Saved the encrypted data in your synced storage'));
+          });
+          notify('Saved the encrypted data in your synced storage');
         }
         else {
           notify('saving aborted');
@@ -129,7 +142,7 @@ const onClicked = async (info, tab) => {
     }
     catch (e) {
       console.warn(e);
-      notify(e.message);
+      notify('Error: ' + e.message);
     }
   }
   else if (method.startsWith('decrypt-') || method.startsWith('record.')) {
@@ -148,6 +161,7 @@ const onClicked = async (info, tab) => {
         target: {
           tabId: tab.id
         },
+        injectImmediately: true,
         func: () => prompt('Enter the passphrase')
       });
       const password = r[0].result;
@@ -170,6 +184,7 @@ const onClicked = async (info, tab) => {
                 tabId: tab.id,
                 frameIds: [info.frameId]
               },
+              injectImmediately: true,
               func: msg => document.execCommand('insertText', false, msg),
               args: [text]
             });
@@ -217,6 +232,7 @@ const onClicked = async (info, tab) => {
       target: {
         tabId: tab.id
       },
+      injectImmediately: true,
       func: () => prompt('Enter the name of a record to be removed')
     });
     if (r[0].result) {
@@ -225,7 +241,7 @@ const onClicked = async (info, tab) => {
     }
   }
   else if (method === 'rate') {
-    let url = 'https://chrome.google.com/webstore/detail/text-encryption-tool/dbamnickgaplfmadnoegnbpjlojmjpge/reviews/';
+    let url = 'https://chromewebstore.google.com/detail/text-encryption-tool/dbamnickgaplfmadnoegnbpjlojmjpge/reviews';
     if (/Edg/.test(navigator.userAgent)) {
       url = 'https://microsoftedge.microsoft.com/addons/detail/dbniffdbjhdfohfjdapjmnladdcflijg';
     }
@@ -235,9 +251,10 @@ const onClicked = async (info, tab) => {
 
     chrome.storage.local.set({
       'rate': false
-    }, () => chrome.tabs.create({
+    });
+    chrome.tabs.create({
       url
-    }));
+    });
   }
   else if (method === 'text-editor' || method === 'file-encryptor') {
     chrome.tabs.create({
@@ -261,8 +278,7 @@ chrome.action.onClicked.addListener(() => onClicked({
 {
   const {management, runtime: {onInstalled, setUninstallURL, getManifest}, storage, tabs} = chrome;
   if (navigator.webdriver !== true) {
-    const page = getManifest().homepage_url;
-    const {name, version} = getManifest();
+    const {homepage_url: page, name, version} = getManifest();
     onInstalled.addListener(({reason, previousVersion}) => {
       management.getSelf(({installType}) => installType === 'normal' && storage.local.get({
         'faqs': true,
